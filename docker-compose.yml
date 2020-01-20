@@ -1,0 +1,50 @@
+version: "3"
+services:
+  db:
+    image: postgres:10-alpine
+    container_name: db
+    restart: always
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=decision-bot
+      - POSTGRES_USER=decision-bot
+      - POSTGRES_PASSWORD=decision-bot
+
+  coolq:
+    image: coolq/wine-coolq
+    container_name: cqhttp-server
+    restart: always
+    volumes:
+      - /coolq:coolq/wine-coolq
+    ports:
+      - "0.0.0.0:5700:5700"
+      - "0.0.0.0:9000:9000"
+    environment:
+      - COOLQ_ACCOUNT=2747275916
+      - CQHTTP_POST_URL=http://example.com:8080
+      - CQHTTP_SERVE_DATA_FILES=yes
+      - COOLQ_URL=https://indigo-coolq-files.oss-cn-beijing.aliyuncs.com/CQP.zip
+
+  backend:
+    image: backend:latest
+    container_name: backend
+    restart: always
+    depends_on:
+      - db
+      - coolq
+    environment:
+      - POSTGRES_DB=decision-bot
+      - POSTGRES_USER=decision-bot
+      - POSTGRES_PASSWORD=decision-bot
+      - ENV=production
+    ports:
+      - "0.0.0.0:80:8000"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        cd /usr/src/app
+        python manage.py makemigrations
+        python manage.py migrate
+        python manage.py runserver 0.0.0.0:8000
