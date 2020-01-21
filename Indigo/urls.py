@@ -22,6 +22,7 @@ urlpatterns = [
     url(r'^api/', include("account.urls")),
     url(r'^api/', include("server.urls")),
     url(r'^api/', include("uestc.urls")),
+    url(r'^api/', include('mcserver.urls')),
     url(r'^request/', TaskViewAPI.as_view()),
     url('', TemplateView.as_view(template_name='index.html'))
 ]
