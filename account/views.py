@@ -3,7 +3,7 @@ from .serializer import UserSerializer, PersonSerializer, CommandSerializer, Gro
 from .models import User, Person, Command
 from .decorators import login_required
 from django.contrib import auth
-from server.views import get_person_information
+from utils.functions import get_person_information
 import uuid
 
 

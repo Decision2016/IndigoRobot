@@ -12,6 +12,6 @@ class StuInfoAPI(BaseAPIView):
         stuInfo = user.stuInfo
         res_status = verify_login_status(stuInfo.stuCookies)
         return self.success({
-            'loginStatus': 'true' if res_status else 'false',
+            'loginStatus': res_status,
             'lastQueryTime': stuInfo.lastQueryTime
         })
