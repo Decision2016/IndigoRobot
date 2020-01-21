@@ -41,3 +41,23 @@ def get_all_grades(cookies_str):
     r = requests.get(url='http://eams.uestc.edu.cn/eams/teach/grade/course/person!historyCourseGrade.action?projectType=MAJOR', cookies=cookies_dict)
     new_cookies = r.cookies
     return re.findall(r"(?<=<tr>)([\d\D]*?)(?=</tr>)", r.text)
+
+
+def get_person_information(group_id, user_id, cq_url):
+    url = cq_url + '/get_group_member_info'
+    data = {
+        'group_id': group_id,
+        'user_id': user_id,
+        'no_cache': 'true'
+    }
+    request = requests.post(url, data)
+    return json.loads(request.text)
+
+
+def send_group_message(message, group_id, cq_url):
+    url = cq_url + "/send_group_msg"
+    data_dic = {
+         'group_id': group_id,
+         'message': message,
+    }
+    request = requests.post(url=url, data=data_dic)
