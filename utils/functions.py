@@ -29,8 +29,8 @@ def verify_login_status(cookies_str):
     cookies_dict = {}
     for cookie in cookies:
         cookies_dict[cookie['name']] = cookie['value']
-    r = requests.get(url='http://eams.uestc.edu.cn/eams/', cookies=cookies_dict)
-    return r.status_code == 200
+    r = requests.get(url='http://eams.uestc.edu.cn/eams/home!submenus.action?menu.id=', cookies=cookies_dict)
+    return not (len(re.findall(r'我的信息', r.text)) == 0)
 
 
 def get_all_grades(cookies_str):

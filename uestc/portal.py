@@ -3,7 +3,7 @@ import re
 import time, datetime
 import json
 import requests
-from utils.functions import post_image, post_private_msg, get_all_grades
+from utils.functions import post_image, post_private_msg, get_all_grades, verify_login_status
 from .models import UestcStu, Course
 from selenium.webdriver.firefox.options import Options
 
@@ -51,11 +51,16 @@ class Portal(object):
             self.login()
             post_private_msg(msg='教务处系统登录成功', user=self.user)
         elif command_array[0] == '/courseinit':
+            # todo:此处存在bug需要进行修改
             try:
                 stuInfo = self.user.stuInfo
             except UestcStu.DoesNotExist:
                 post_private_msg(msg='用户未登录', user=self.user)
             course_list = get_all_grades(stuInfo.stuCookies)
+            if len(course_list) == 0 and not stuInfo.loginHint:
+                post_private_msg(msg="登录失效", user=self.user)
+                stuInfo.loginHint = True
+            stuInfo.save()
             for i in range(2, len(course_list)):
                 course_detail = re.findall(r"(?<=<td>).*?(?=</td>)", course_list[i])
                 grade = re.findall(r'(?<=<td style="">)([\d\D]*?)(?=</td>)', course_list[i])[1]
@@ -74,6 +79,16 @@ class Portal(object):
             post_private_msg(msg='成绩初始化成功', user=self.user)
         elif command_array[0] == '/switch':
             self.switch()
+        elif command_array[0] == '/test':
+            self.test()
+        elif command_array[0] == '/login_status':
+            try:
+                stuInfo = self.user.stuInfo
+                login_status = verify_login_status(stuInfo.stuCookies)
+            except UestcStu.DoesNotExist:
+                login_status = False
+            post_private_msg(msg='教务处登录状态:{0}'.format('True' if login_status else 'False'), user=self.user)
+
 
     def task(self):
         query_flag = False
@@ -92,7 +107,7 @@ class Portal(object):
             course_detail = re.findall(r"(?<=<td>).*?(?=</td>)", course_list[i])
             grade = re.findall(r'(?<=<td style="">)([\d\D]*?)(?=</td>)', course_list[i])[1]
             grade = str(grade)
-            grade.replace(" ", "")
+            grade = grade.replace(" ", "")
             try:
                 self.user.course.get(courseId=course_detail[1])
             except Course.DoesNotExist:
@@ -111,3 +126,15 @@ class Portal(object):
         stuInfo.gradeSpySwitch = not stuInfo.gradeSpySwitch
         stuInfo.save()
         post_private_msg('成绩检测接口已调整：{0}'.format('ON' if stuInfo.gradeSpySwitch else 'OFF'), self.user)
+
+    def test(self):
+        try:
+            stuInfo = self.user.stuInfo
+        except UestcStu.DoesNotExist:
+            post_private_msg(msg='用户未登录', user=self.user)
+        course_list = get_all_grades(stuInfo.stuCookies)
+        if len(course_list) == 0 and not stuInfo.loginHint:
+            post_private_msg(msg="登录失效", user=self.user)
+            stuInfo.loginHint = True
+        stuInfo.save()
+        post_private_msg(len(course_list), self.user)
