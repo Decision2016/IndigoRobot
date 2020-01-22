@@ -115,6 +115,7 @@ class Portal(object):
                 course.courseName = course_detail[3]
                 course.courseId = course_detail[1]
                 course.coursePoint = course_detail[5]
+                course.belong = self.user
                 course.courseGrade = grade
                 msg = "公布了新的课程{0}成绩：{1}".format(course.courseName, course.courseGrade)
                 post_private_msg(msg=msg, user=self.user)
