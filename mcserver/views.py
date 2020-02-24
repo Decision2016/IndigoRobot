@@ -6,6 +6,7 @@ from .models import serverInfo
 from .serializer import ServerInfoSerializer
 from .StatusPing import StatusPing
 
+
 class MCServerAPI(BaseAPIView):
     @login_required
     def get(self, request):

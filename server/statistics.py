@@ -34,7 +34,7 @@ class Statistics(object):
 
     def commands(self, command_string, **kwargs):
         string_array = command_string.split(' ')
-        if string_array[0] == '/add1':
+        if string_array[0] == '/add':
             # user_id:对应的用户信息，而非QQ账号
             if kwargs['user_id'] != self.user.superUserId:
                 return "你add你🐎呢"
