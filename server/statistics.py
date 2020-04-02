@@ -4,6 +4,7 @@ from account.serializer import PersonSerializer
 from utils.functions import get_person_information, send_group_message
 from api.porn_detection import image_api
 from uestc.portal import Portal
+import requests
 
 
 class Statistics(object):
@@ -75,6 +76,18 @@ class Statistics(object):
                 return "接口状态已调整:" + ('ON' if self.user.pornSwitch else 'OFF')
             else:
                 return "指令格式错误"
+        elif string_array[0] == '/switchZaun':
+            if kwargs['user_id'] != self.user.superUserId:
+                return "你close你🐎呢"
+            if len(string_array) == 1:
+                self.user.pornSwitch = not self.user.zaunSwitch
+                self.user.save()
+                return "接口状态已调整:" + ('ON' if self.user.zaunSwitch else 'OFF')
+            else:
+                return "指令格式错误"
+        elif string_array[0] == '/Zaun':
+            zaunText = requests.get('https://nmsl.shadiao.app/api.php?level=max&lang=zh_cn').text
+            return zaunText
         return None
 
     def count_add(self, group_id, command, nickname, user_id):

@@ -10,6 +10,7 @@ class User(AbstractUser):
     superUserId = models.BigIntegerField()
     cqUrl = models.TextField(default='')
     pornSwitch = models.BooleanField(default=False)
+    zaunSwitch = models.BooleanField(default=False)
 
     class Meta:
         db_table = "users_table"
