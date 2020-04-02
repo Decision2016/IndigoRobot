@@ -11,6 +11,10 @@ class Statistics(object):
     def __init__(self, user):
         self.user = user
 
+    def zaunPost(self):
+        zaunText = requests.get('https://nmsl.shadiao.app/api.php?level={0}&lang=zh_cn'.format(self.user.zaunLevel)).text
+        return zaunText
+
     def get_person(self, command_string, **kwargs):
         string_array = command_string.split(' ')
         try:
@@ -79,15 +83,20 @@ class Statistics(object):
         elif string_array[0] == '/switchZaun':
             if kwargs['user_id'] != self.user.superUserId:
                 return "你close你🐎呢"
-            if len(string_array) == 1:
+            if len(string_array) == 1 and self.user.zaunSwitch:
                 self.user.pornSwitch = not self.user.zaunSwitch
                 self.user.save()
                 return "接口状态已调整:" + ('ON' if self.user.zaunSwitch else 'OFF')
-            else:
-                return "指令格式错误"
         elif string_array[0] == '/Zaun':
-            zaunText = requests.get('https://nmsl.shadiao.app/api.php?level=max&lang=zh_cn').text
-            return zaunText
+            if len(string_array) == 2:
+                if kwargs['user_id'] != self.user.superUserId:
+                    return "你设置你🐎呢"
+                self.user.zaunUserId = int(string_array[1])
+                self.user.zaunGroupNumber = kwargs['group_id']
+                self.user.zaunLevel =string_array[2]
+                return "设置成功"
+            elif len(string_array) == 1:
+                return self.zaunPost()
         return None
 
     def count_add(self, group_id, command, nickname, user_id):
@@ -140,7 +149,7 @@ class Statistics(object):
         command_res = self.commands(message, user_id=user_id, groupId=group_id)
         get_person_information(group_id, message, self.user.cqUrl)
         if command_res:
-            send_group_message(command_res, data['group_id'], self.user.cqUrl)
+            send_group_message(command_res, group_id, self.user.cqUrl)
         else:
             rank_dic, nickname = self.rank_get(message, int(group_id))
             if rank_dic:
@@ -150,6 +159,8 @@ class Statistics(object):
                 ret = re.search("CQ:image", message)
                 if self.user.pornSwitch and ret and image_api.detection(message):
                     send_group_message("gkdgkd!!!!", group_id, self.user.cqUrl)
+        if user_id == self.user.zaunUserId and group_id == self.user.zaunGroupNumber:
+                send_group_message(self.zaunPost(), group_id, self.user.cqUrl)
 
     def set_person_status(self, person, status):
         person.in_group = status

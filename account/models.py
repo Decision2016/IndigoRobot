@@ -11,6 +11,9 @@ class User(AbstractUser):
     cqUrl = models.TextField(default='')
     pornSwitch = models.BooleanField(default=False)
     zaunSwitch = models.BooleanField(default=False)
+    zaunGroupNumber = models.BigIntegerField(null=True)
+    zaunUserId = models.BigIntegerField(null=True)
+    zaunLevel = models.TextField(null=True)
 
     class Meta:
         db_table = "users_table"
