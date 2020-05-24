@@ -112,8 +112,6 @@ class Statistics(object):
 
         person.nickname = nickname
         person.count = person.count + 1
-        if person.count % 1000 == 0:
-            return True
         group.save()
         person.save()
         return False
